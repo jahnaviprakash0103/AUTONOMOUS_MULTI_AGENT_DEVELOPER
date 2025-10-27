@@ -3,10 +3,6 @@ import oci
 import json
 import os
 import re
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 
 def parse_llm_json(raw_text: str):
@@ -34,17 +30,14 @@ def parse_llm_json(raw_text: str):
 class ProductManagerAgent:
     def __init__(self):
         # Load values from environment variables
-        self.compartment_id = os.getenv("COMPARTMENT_ID")
-        self.model_id = os.getenv("MODEL_ID")
-        config_profile = os.getenv("CONFIG_PROFILE", "DEFAULT")
-        endpoint = os.getenv(
-            "OCI_REGION_ENDPOINT",
-            "https://inference.generativeai.ap-hyderabad-1.oci.oraclecloud.com"
-        )
+        self.compartment_id = "ocid1.compartment.oc1..aaaaaaaadg4huvdmy2wyjt2lkg5pl4wmi2gxabxwtckbzyoz7pjggidoau2a"
+        self.model_id = "ocid1.generativeaimodel.oc1.us-chicago-1.amaaaaaask7dceyapnibwg42qjhwaxrlqfpreueirtwghiwvv2whsnwmnlva"
+        config_profile =(r"C:\Users\D Harshavardhan\Desktop\config\config", "DEFAULT")
+        endpoint ="https://inference.generativeai.us-chicago-1.oci.oraclecloud.com"
 
         # OCI client setup
         config = oci.config.from_file(
-            r"C:\Users\Jahnavi Prakash\Downloads\config", config_profile
+            r"C:\Users\D Harshavardhan\Desktop\config\config", "DEFAULT"
         )
         self.client = oci.generative_ai_inference.GenerativeAiInferenceClient(
             config=config,
