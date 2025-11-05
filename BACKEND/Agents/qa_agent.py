@@ -114,6 +114,7 @@ Return ONLY a JSON array of test case objects without any additional commentary 
         raw_response = self._query_llm(prompt)
         return parse_llm_json_array(raw_response)
 
+'''
 # Example usage
 
 if __name__ == "__main__":
@@ -142,3 +143,4 @@ if __name__ == "__main__":
     )
 
     print(json.dumps(test_cases, indent=2))
+'''
