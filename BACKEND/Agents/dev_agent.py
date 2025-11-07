@@ -2,9 +2,21 @@ import oci
 import json
 import os
 import re
+import time
+import random
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# ---------------------------------------------------------
+# Configure logging
+# ---------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
 
 def parse_llm_json(raw_text: str):
     cleaned = re.sub(r"``````", "", raw_text, flags=re.IGNORECASE).strip()
@@ -13,6 +25,7 @@ def parse_llm_json(raw_text: str):
         return data
     except json.JSONDecodeError:
         return {"text_response": raw_text}
+
 
 class DeveloperAgent:
     def __init__(self):
@@ -23,9 +36,11 @@ class DeveloperAgent:
             "OCI_REGION_ENDPOINT",
             "https://inference.generativeai.ap-hyderabad-1.oci.oraclecloud.com"
         )
+
         config = oci.config.from_file(
             os.getenv("OCI_CONFIG_PATH", "~/.oci/config"), config_profile
         )
+
         self.client = oci.generative_ai_inference.GenerativeAiInferenceClient(
             config=config,
             service_endpoint=endpoint,
@@ -33,12 +48,51 @@ class DeveloperAgent:
             timeout=(10, 240)
         )
 
+    # ---------------------------------------------------------
+    # Safe LLM call with exponential backoff + jitter
+    # ---------------------------------------------------------
+    def _safe_chat_request(self, chat_detail, max_retries=5, base_delay=2):
+        """
+        Retries the OCI LLM request with exponential backoff and jitter
+        for 429 and transient 5xx errors.
+        """
+        for attempt in range(max_retries):
+            try:
+                response = self.client.chat(chat_detail)
+                return response.data.chat_response.text
+
+            except oci.exceptions.ServiceError as e:
+                if e.status in [429, 500, 502, 503, 504]:
+                    sleep_time = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                    logging.warning(
+                        f"Service error {e.status} ({e.message}). "
+                        f"Retry {attempt + 1}/{max_retries} in {sleep_time:.2f}s..."
+                    )
+                    time.sleep(sleep_time)
+                else:
+                    logging.error(f"Non-retryable OCI error: {e}")
+                    raise
+
+            except Exception as ex:
+                sleep_time = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                logging.warning(
+                    f"Unexpected error: {ex}. "
+                    f"Retry {attempt + 1}/{max_retries} in {sleep_time:.2f}s..."
+                )
+                time.sleep(sleep_time)
+
+        logging.error(f"Exceeded {max_retries} retries due to rate limiting or network issues.")
+        raise RuntimeError(f"Exceeded {max_retries} retries due to rate limiting or connection issues.")
+
+    # ---------------------------------------------------------
+    # LLM query with retry wrapper
+    # ---------------------------------------------------------
     def _query_llm(self, user_prompt: str) -> str:
         chat_detail = oci.generative_ai_inference.models.ChatDetails()
         chat_request = oci.generative_ai_inference.models.CohereChatRequest()
 
         chat_request.message = user_prompt
-        chat_request.max_tokens = 1500  # increased token budget
+        chat_request.max_tokens = 1500
         chat_request.temperature = 0.7
         chat_request.top_p = 0.75
         chat_request.top_k = 0
@@ -50,11 +104,23 @@ class DeveloperAgent:
         chat_detail.chat_request = chat_request
         chat_detail.compartment_id = self.compartment_id
 
-        response = self.client.chat(chat_detail)
-        return response.data.chat_response.text
-    
+        logging.info("Sending LLM request...")
+        response_text = self._safe_chat_request(chat_detail)
+        logging.info("Received LLM response successfully.")
+        return response_text
 
-    def check_input_sufficiency(self, phase_description, task_description, system_design, tech_stack, performance_metrics, architect_answers):
+    # ---------------------------------------------------------
+    # Input sufficiency evaluation
+    # ---------------------------------------------------------
+    def check_input_sufficiency(
+        self,
+        phase_description,
+        task_description,
+        system_design,
+        tech_stack,
+        performance_metrics,
+        architect_answers
+    ):
         prompt = f"""
 You are a highly skilled, expert AI system analyst. Your task is to evaluate the sufficiency of the provided inputs for generating a robust, well-working system.
 
@@ -85,19 +151,31 @@ Accept answers that follow common industry best practices unless there are clear
 Do not ask for additional details or clarification unless *absolutely necessary* for a competent developer to proceed.
 
 Respond ONLY with a JSON object with keys:
-{
+{{
   "architecht_required": true or false,
   "questions_to_architecht": [] if false, else list of clarifying questions or additional requirements
-}
+}}
 
 Do not repeat questions that have already been answered or covered.
 
 No extra text or explanation.
 """
+        logging.info("Checking input sufficiency...")
         raw_response = self._query_llm(prompt)
         return parse_llm_json(raw_response)
 
-    def generate_code(self, phase_description, task_description, system_design, tech_stack, performance_metrics, architect_answers):
+    # ---------------------------------------------------------
+    # Code generation logic
+    # ---------------------------------------------------------
+    def generate_code(
+        self,
+        phase_description,
+        task_description,
+        system_design,
+        tech_stack,
+        performance_metrics,
+        architect_answers
+    ):
         prompt = f"""
 You are a highly skilled software developer AI agent. Your task is to generate high-quality, production-ready code and all necessary artifacts based on the given inputs.
 
@@ -142,5 +220,6 @@ Requirements:
 Generate the entire JSON response concisely and precisely. Aim for clarity, correctness, and completeness.
 No extra text or explanation outside the JSON.
 """
+        logging.info("Generating code using LLM...")
         raw_response = self._query_llm(prompt)
         return parse_llm_json(raw_response)
