@@ -19,12 +19,25 @@ logging.basicConfig(
 )
 
 def parse_llm_json(raw_text: str):
-    cleaned = re.sub(r"``````", "", raw_text, flags=re.IGNORECASE).strip()
+    """
+    Cleans and parses the LLM JSON output.
+    Handles cases where JSON is wrapped in markdown (```json ... ```).
+    """
+    # Remove markdown fences
+    cleaned = re.sub(r"^```(?:json)?|```$", "", raw_text.strip(), flags=re.MULTILINE).strip()
+
     try:
+        # Try parsing it as JSON
         data = json.loads(cleaned)
         return data
     except json.JSONDecodeError:
-        return {"text_response": raw_text}
+        # Sometimes the model wraps it again inside a "text_response"
+        try:
+            inner = json.loads(json.loads(raw_text).get("text_response", "{}"))
+            return inner
+        except Exception:
+            return {"text_response": raw_text}
+
 
 
 class DeveloperAgent:
@@ -167,6 +180,9 @@ No extra text or explanation.
     # ---------------------------------------------------------
     # Code generation logic
     # ---------------------------------------------------------
+    # ---------------------------------------------------------
+    # Code generation logic
+    # ---------------------------------------------------------
     def generate_code(
         self,
         phase_description,
@@ -181,22 +197,22 @@ You are a highly skilled software developer AI agent. Your task is to generate h
 
 Given these inputs:
 Phase:
-\"\"\"{phase_description}\"\"\"
+\"\"\"{phase_description}\"\"\" 
 
 Task:
-\"\"\"{task_description}\"\"\"
+\"\"\"{task_description}\"\"\" 
 
 System Design:
-\"\"\"{system_design}\"\"\"
+\"\"\"{system_design}\"\"\" 
 
 Tech Stack:
-\"\"\"{tech_stack}\"\"\"
+\"\"\"{tech_stack}\"\"\" 
 
 Desired Performance Metrics:
-\"\"\"{performance_metrics}\"\"\"
+\"\"\"{performance_metrics}\"\"\" 
 
 Other required information:
-\"\"\"{architect_answers}\"\"\"
+\"\"\"{architect_answers}\"\"\" 
 
 Generate a JSON response ONLY:
 
@@ -222,4 +238,47 @@ No extra text or explanation outside the JSON.
 """
         logging.info("Generating code using LLM...")
         raw_response = self._query_llm(prompt)
-        return parse_llm_json(raw_response)
+
+        # ✅ Parse LLM response
+        parsed_response = parse_llm_json(raw_response)
+
+        # ✅ Print generated code to terminal (if available)
+        # ✅ Print generated code to terminal (handle dict or string)
+        if "code" in parsed_response:
+            code_field = parsed_response["code"]
+
+            print("\n🧠 Generated Code:\n")
+            if isinstance(code_field, dict):
+                for filename, content in code_field.items():
+                    print(f"\n📄 File: {filename}\n{'-' * 60}")
+                    if isinstance(content, str):
+                        print(content[:800])
+                    else:
+                        print(json.dumps(content, indent=2)[:800])  # safely print non-string data
+            else:
+                if isinstance(code_field, str):
+                    print(code_field[:2000])
+                else:
+                    print(json.dumps(code_field, indent=2)[:2000])
+
+        else:
+            print("\n⚠️ No 'code' field found in response. Raw output:\n")
+            print(raw_response)
+
+
+        # ✅ Save output to a file
+        output_dir = "generated_code"
+        os.makedirs(output_dir, exist_ok=True)
+        import re
+
+        # Sanitize filename (remove invalid chars for Windows)
+        safe_filename = re.sub(r'[\\/*?:"<>|]', "_", task_description[:80])
+        output_file = os.path.join(output_dir, f"{safe_filename}.json")
+
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(parsed_response, f, indent=2)
+
+        print(f"\n✅ Developer Agent output saved to: {output_file}\n")
+
+        return parsed_response

@@ -1,0 +1,8 @@
+{
+  "code": "\"\"\"\nPostgreSQL database schema for user and assessment data.\n\"\"\"\n\n-- Users Table\nCREATE TABLE users (\n    user_id SERIAL PRIMARY KEY,\n    username VARCHAR(50) UNIQUE NOT NULL,\n    email VARCHAR(100) UNIQUE NOT NULL,\n    password_hash VARCHAR(128) NOT NULL,\n    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'teacher', 'admin')),\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Assessments Table\nCREATE TABLE assessments (\n    assessment_id SERIAL PRIMARY KEY,\n    title VARCHAR(200) NOT NULL,\n    description TEXT,\n    created_by INT REFERENCES users(user_id) ON DELETE CASCADE,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    due_date TIMESTAMP\n);\n\n-- Submissions Table\nCREATE TABLE submissions (\n    submission_id SERIAL PRIMARY KEY,\n    assessment_id INT REFERENCES assessments(assessment_id) ON DELETE CASCADE,\n    submitted_by INT REFERENCES users(user_id) ON DELETE CASCADE,\n    submission_text TEXT,\n    submission_file VARCHAR(255), -- File path or URL\n    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Grades Table\nCREATE TABLE grades (\n    grade_id SERIAL PRIMARY KEY,\n    submission_id INT REFERENCES submissions(submission_id) ON DELETE CASCADE,\n    score FLOAT CHECK (score BETWEEN 0 AND 100),\n    feedback TEXT,\n    graded_by INT REFERENCES users(user_id) ON DELETE SET NULL,\n    graded_at TIMESTAMP\n);",
+  "requirements.txt": "psycopg2==2.9.3\n",
+  "input_output": {
+    "input": "None (Database schema is a definition, not a function)",
+    "expected_output": "Database tables created in PostgreSQL: users, assessments, submissions, grades"
+  }
+}

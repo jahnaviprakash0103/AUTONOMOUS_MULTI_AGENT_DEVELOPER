@@ -1,0 +1,11 @@
+{
+  "code": {
+    "stakeholder_interviews.py": "import json\n\nclass StakeholderInterview:\n    def __init__(self, name, role, responses):\n        self.name = name\n        self.role = role\n        self.responses = responses\n\n    def to_dict(self):\n        return {\"name\": self.name, \"role\": self.role, \"responses\": self.responses}\n\ndef conduct_interviews(participants):\n    interviews = []\n    for participant in participants:\n        responses = {\n            \"requirements\": input(f\"{participant['name']} ({participant['role']}): What are your key requirements? \"),\n            \"privacy_concerns\": input(f\"{participant['name']} ({participant['role']}): What are your data privacy concerns? \")\n        }\n        interviews.append(StakeholderInterview(participant['name'], participant['role'], responses).to_dict())\n    return interviews\n\n# Example participants\nparticipants = [\n    {\"name\": \"Teacher1\", \"role\": \"Teacher\"},\n    {\"name\": \"Teacher2\", \"role\": \"Teacher\"},\n    {\"name\": \"Student1\", \"role\": \"Student\"},\n    {\"name\": \"Student2\", \"role\": \"Student\"},\n    {\"name\": \"Admin1\", \"role\": \"Administrator\"}\n]\n\n# Conduct interviews\ninterview_results = conduct_interviews(participants)\n\n# Save results to JSON\nwith open(\"interview_results.json\", \"w\") as f:\n    json.dump(interview_results, f, indent=4)",
+    "requirements.txt": "fastapi==0.75.0\npydantic==1.8.2\nuvicorn==0.15.0\npython-dotenv==0.20.0"
+  },
+  "requirements.txt": "python-dotenv==0.20.0\nFastAPI==0.75.0\nUvicorn==0.15.0\npsycopg2-binary==2.9.3\ntensorflow==2.8.0\ndocker==5.0.3\nreact==17.0.2",
+  "input_output": {
+    "input": "List of participants with name and role, e.g., [{\"name\": \"Teacher1\", \"role\": \"Teacher\"}, {\"name\": \"Student1\", \"role\": \"Student\"}]",
+    "expected_output": "JSON file named 'interview_results.json' containing stakeholder responses, e.g., [{\"name\": \"Teacher1\", \"role\": \"Teacher\", \"responses\": {\"requirements\": \"...\", \"privacy_concerns\": \"...\"}}]"
+  }
+}

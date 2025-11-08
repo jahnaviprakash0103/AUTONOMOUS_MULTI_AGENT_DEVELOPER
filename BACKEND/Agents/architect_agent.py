@@ -50,34 +50,40 @@ class ArchitectAgent:
         return response.data.chat_response.text
 
     def divide_phase_into_tasks(self, phase: dict, retries: int = 1) -> dict:
-        """Divide a phase into week-by-week tasks, retrying if JSON parse fails."""
+        """Divide a phase into daily tasks for a single week."""
         phase_name = phase.get("phase_name", "Unnamed Phase")
         description = phase.get("description", "")
 
         prompt = f"""
-        You are a Software Architect planning weekly execution tasks.
+You are a senior software architect planning a short development sprint.
 
-        Phase Name: {phase_name}
-        Description: {description}
+Phase Name: {phase_name}
+Description: {description}
 
-        Break this phase into detailed weekly tasks.
-        Each week should have specific, actionable developer tasks.
+This project has 3 total phases (each = 1 week). 
+For this phase, generate a simple plan for ONE week, broken into daily tasks (Day 1 to Day 5).
+Each day should have clear, actionable developer tasks.
 
-        Respond strictly in JSON with this structure:
-        {{
-          "phase_name": "{phase_name}",
-          "tasks_by_week": [
-            {{
-              "week": 1,
-              "tasks": ["task1", "task2"]
-            }},
-            {{
-              "week": 2,
-              "tasks": ["task3", "task4"]
-            }}
-          ]
-        }}
-        """
+Also include:
+- system_design: brief explanation of the high-level architecture
+- tech_stack: list of main tools and technologies
+- performance_metrics: 2–3 measurable KPIs
+
+Respond strictly in valid JSON like this:
+{{
+  "phase_name": "{phase_name}",
+  "system_design": "Short summary of design decisions",
+  "tech_stack": ["Python", "FastAPI", "PostgreSQL"],
+  "performance_metrics": ["API latency <200ms", "95% uptime"],
+  "tasks_by_day": [
+    {{"day": 1, "tasks": ["Task 1", "Task 2"]}},
+    {{"day": 2, "tasks": ["Task 3", "Task 4"]}},
+    {{"day": 3, "tasks": ["Task 5"]}},
+    {{"day": 4, "tasks": ["Task 6"]}},
+    {{"day": 5, "tasks": ["Testing", "Code review"]}}
+  ]
+}}
+"""
 
         raw_output = self._query_llm(prompt)
         print(f"\n[ArchitectAgent] Raw output for phase '{phase_name}':\n{raw_output}\n")
@@ -85,23 +91,26 @@ class ArchitectAgent:
         structured_output = parse_llm_json(raw_output)
 
         # Retry once if parsing fails
-        if "tasks_by_week" not in structured_output and retries > 0:
+        if "tasks_by_day" not in structured_output and retries > 0:
             print(f"[ArchitectAgent] JSON parse failed for '{phase_name}'. Retrying...")
             time.sleep(2)
             return self.divide_phase_into_tasks(phase, retries=0)
 
-        # Fallback if still not valid
-        if "tasks_by_week" not in structured_output:
+        # Fallback if still invalid
+        if "tasks_by_day" not in structured_output:
             structured_output = {
                 "phase_name": phase_name,
-                "tasks_by_week": [],
+                "system_design": "Not generated",
+                "tech_stack": [],
+                "performance_metrics": [],
+                "tasks_by_day": [],
                 "raw_response": raw_output
             }
 
         return structured_output
 
     def process_all_phases(self, phases: list) -> list:
-        """Generate weekly breakdowns for each phase."""
+        """Generate daily breakdown for each phase (1 week per phase)."""
         results = []
         for phase in phases:
             result = self.divide_phase_into_tasks(phase)

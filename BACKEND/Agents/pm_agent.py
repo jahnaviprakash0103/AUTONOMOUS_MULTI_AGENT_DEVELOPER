@@ -81,7 +81,7 @@ class ProductManagerAgent:
         """
         prompt = f"""
         You are a Product Manager.
-        Given the following project idea, divide it into clear development phases (3–5 max).
+        # Given the following project idea, give only one phase.
 
         For each phase, include:
         - phase_name

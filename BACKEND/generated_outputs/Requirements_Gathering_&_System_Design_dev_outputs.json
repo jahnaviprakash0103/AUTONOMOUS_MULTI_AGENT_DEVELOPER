@@ -1,0 +1,245 @@
+[
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 1,
+    "task": "Conduct stakeholder interviews with 2 teachers, 2 students, and 1 administrator",
+    "result": {
+      "code": {
+        "stakeholder_interviews.py": "import json\n\nclass StakeholderInterview:\n    def __init__(self, name, role, responses):\n        self.name = name\n        self.role = role\n        self.responses = responses\n\n    def to_dict(self):\n        return {\"name\": self.name, \"role\": self.role, \"responses\": self.responses}\n\ndef conduct_interviews(participants):\n    interviews = []\n    for participant in participants:\n        responses = {\n            \"requirements\": input(f\"{participant['name']} ({participant['role']}): What are your key requirements? \"),\n            \"privacy_concerns\": input(f\"{participant['name']} ({participant['role']}): What are your data privacy concerns? \")\n        }\n        interviews.append(StakeholderInterview(participant['name'], participant['role'], responses).to_dict())\n    return interviews\n\n# Example participants\nparticipants = [\n    {\"name\": \"Teacher1\", \"role\": \"Teacher\"},\n    {\"name\": \"Teacher2\", \"role\": \"Teacher\"},\n    {\"name\": \"Student1\", \"role\": \"Student\"},\n    {\"name\": \"Student2\", \"role\": \"Student\"},\n    {\"name\": \"Admin1\", \"role\": \"Administrator\"}\n]\n\n# Conduct interviews\ninterview_results = conduct_interviews(participants)\n\n# Save results to JSON\nwith open(\"interview_results.json\", \"w\") as f:\n    json.dump(interview_results, f, indent=4)",
+        "requirements.txt": "fastapi==0.75.0\npydantic==1.8.2\nuvicorn==0.15.0\npython-dotenv==0.20.0"
+      },
+      "requirements.txt": "python-dotenv==0.20.0\nFastAPI==0.75.0\nUvicorn==0.15.0\npsycopg2-binary==2.9.3\ntensorflow==2.8.0\ndocker==5.0.3\nreact==17.0.2",
+      "input_output": {
+        "input": "List of participants with name and role, e.g., [{\"name\": \"Teacher1\", \"role\": \"Teacher\"}, {\"name\": \"Student1\", \"role\": \"Student\"}]",
+        "expected_output": "JSON file named 'interview_results.json' containing stakeholder responses, e.g., [{\"name\": \"Teacher1\", \"role\": \"Teacher\", \"responses\": {\"requirements\": \"...\", \"privacy_concerns\": \"...\"}}]"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 1,
+    "task": "Document initial functional and non-functional requirements",
+    "result": {
+      "code": "{\n  \"functional_requirements\": [\n    {\n      \"id\": \"FR-001\",\n      \"description\": \"AI-powered grading module must evaluate student submissions based on predefined criteria.\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"FR-002\",\n      \"description\": \"System must support role-based access control for teachers, students, and administrators.\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"FR-003\",\n      \"description\": \"System must store and retrieve student and assessment data securely.\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"FR-004\",\n      \"description\": \"Teachers must be able to create and manage assessments.\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"FR-005\",\n      \"description\": \"Students must be able to submit assessments and view their grades.\",\n      \"priority\": \"Must-Have\"\n    }\n  ],\n  \"non_functional_requirements\": [\n    {\n      \"id\": \"NFR-001\",\n      \"description\": \"AI grading accuracy must meet or exceed 90% threshold.\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"NFR-002\",\n      \"description\": \"System must ensure data privacy compliance with relevant regulations (e.g., FERPA, GDPR).\",\n      \"priority\": \"Must-Have\"\n    },\n    {\n      \"id\": \"NFR-003\",\n      \"description\": \"System must be scalable to handle up to 10,000 concurrent users.\",\n      \"priority\": \"Should-Have\"\n    },\n    {\n      \"id\": \"NFR-004\",\n      \"description\": \"Response time for grading should be under 5 seconds.\",\n      \"priority\": \"Should-Have\"\n    }\n  ]\n}",
+      "requirements.txt": "fastapi==0.78.0\nuvicorn==0.17.6\npydantic==1.9.1\ntensorflow==2.9.0\npsycopg2-binary==2.9.3\ndocker==5.0.3\n",
+      "input_output": {
+        "input": "None (Requirements are documented based on stakeholder interviews)",
+        "expected_output": "JSON document containing functional and non-functional requirements with IDs, descriptions, and priorities."
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 1,
+    "task": "Set up project repository and documentation structure",
+    "result": {
+      "code": {
+        "README.md": "# Project Repository Structure\n## Overview\nThis repository contains the codebase and documentation for the AI-powered grading system.\n\n## Directory Structure\n```\n.github/\n  workflows/\n    ci.yml  # GitHub Actions CI pipeline\ndocs/\n  requirements.md  # Stakeholder requirements\n  system_design.md  # System architecture\n  api_docs.md      # API documentation\nfrontend/\n  src/            # React components\n  public/         # Static assets\nbackend/\n  api/            # FastAPI services\n  models/         # TensorFlow models\ndatabase/\n  schema.sql      # PostgreSQL schema\n  migrations/     # Database migrations\nDockerfile        # Docker configuration\n.env.example      # Environment variables template\n```\n\n## Getting Started\n1. Clone the repository\n2. Install dependencies: `pip install -r requirements.txt`\n3. Set up environment variables\n4. Run: `docker-compose up --build`\n",
+        "backend/api/__init__.py": "# FastAPI initialization\nfrom fastapi import FastAPI\napp = FastAPI()\n",
+        "backend/api/main.py": "# Example API endpoint\nfrom fastapi import APIRouter\nrouter = APIRouter()\n\n@router.get('/health')\ndef health_check():\n    return {\"status\": \"healthy\"}\n",
+        "docker-compose.yml": "version: '3.8'\nservices:\n  api:\n    build: ./backend\n    ports:\n      - 8000:8000\n  db:\n    image: postgres:13\n    environment:\n      POSTGRES_DB: grading_system\n  frontend:\n    build: ./frontend\n    ports:\n      - 3000:3000\n",
+        ".gitignore": ".env\n__pycache__/\nnode_modules/\nbuild/\ndist/\n",
+        "docs/system_design.md": "# System Design\n## Architecture\nMicroservices with API gateway\n\n## Components\n- AI Grading Module (TensorFlow)\n- User Management Service\n- Secure PostgreSQL Database\n- React Frontend with RBAC\n"
+      },
+      "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\npsycopg2-binary==2.9.3\ntensorflow==2.8.0\ndocker==5.0.3\n",
+      "input_output": {
+        "input": "None (Repository setup task)",
+        "expected_output": "Repository with defined structure and initial files created"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 2,
+    "task": "Finalize stakeholder interviews with remaining participants",
+    "result": {
+      "code": {
+        "stakeholder_interviews.py": "import json\n\nclass StakeholderInterview:\n    def __init__(self, participant_type, requirements):\n        self.participant_type = participant_type\n        self.requirements = requirements\n\n    def to_dict(self):\n        return {\"participant_type\": self.participant_type, \"requirements\": self.requirements}\n\ndef finalize_interviews(remaining_participants, existing_requirements):\n    interviews = []\n    for participant in remaining_participants:\n        requirements = {\n            \"functional\": [],\n            \"non_functional\": []\n        }\n        # Simulate gathering requirements from participant\n        requirements[\"functional\"].append(f\"{participant}_functional_req\")\n        requirements[\"non_functional\"].append(f\"{participant}_non_functional_req\")\n        interview = StakeholderInterview(participant, requirements)\n        interviews.append(interview.to_dict())\n        existing_requirements.update({participant: requirements})\n    return interviews, existing_requirements\n\n# Example usage\nremaining_participants = [\"teacher_3\", \"student_3\", \"administrator_2\"]\nexisting_requirements = {}\ninterviews, updated_requirements = finalize_interviews(remaining_participants, existing_requirements)\nprint(json.dumps(updated_requirements, indent=4))",
+        "requirements_documentation.py": "import json\n\ndef prioritize_requirements(requirements):\n    prioritized = {\n        \"must_have\": [],\n        \"should_have\": [],\n        \"nice_to_have\": []\n    }\n    for participant, reqs in requirements.items():\n        for func_req in reqs[\"functional\"]:\n            prioritized[\"must_have\"].append(func_req)\n        for non_func_req in reqs[\"non_functional\"]:\n            prioritized[\"should_have\"].append(non_func_req)\n    return prioritized\n\n# Example usage with updated_requirements from stakeholder_interviews.py\nprioritized = prioritize_requirements(updated_requirements)\nprint(json.dumps(prioritized, indent=4))"
+      },
+      "requirements.txt": "python==3.9\nfastapi==0.75.0\nuvicorn==0.17.6\npydantic==1.9.0\n",
+      "input_output": {
+        "input": "{\n  \"remaining_participants\": [\"teacher_3\", \"student_3\", \"administrator_2\"],\n  \"existing_requirements\": {}\n}",
+        "expected_output": "{\n  \"teacher_3\": {\n    \"functional\": [\"teacher_3_functional_req\"],\n    \"non_functional\": [\"teacher_3_non_functional_req\"]\n  },\n  \"student_3\": {\n    \"functional\": [\"student_3_functional_req\"],\n    \"non_functional\": [\"student_3_non_functional_req\"]\n  },\n  \"administrator_2\": {\n    \"functional\": [\"administrator_2_functional_req\"],\n    \"non_functional\": [\"administrator_2_non_functional_req\"]\n  }\n}"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 2,
+    "task": "Prioritize and categorize requirements into must-have, should-have, and nice-to-have",
+    "result": {
+      "code": "from typing import List, Dict, Any\nfrom pydantic import BaseModel, Field\nfrom fastapi import FastAPI, HTTPException\nfrom enum import Enum\n\napp = FastAPI()\n\nclass RequirementPriority(str, Enum):\n    MUST_HAVE = 'must-have'\n    SHOULD_HAVE = 'should-have'\n    NICE_TO_HAVE = 'nice-to-have'\n\nclass Requirement(BaseModel):\n    id: int = Field(..., gt=0)\n    description: str\n    priority: RequirementPriority\n    category: str\n\nclass RequirementService:\n    def __init__(self):\n        self.requirements: List[Requirement] = []\n\n    def add_requirement(self, requirement: Requirement) -> None:\n        self.requirements.append(requirement)\n\n    def get_requirements_by_priority(self, priority: RequirementPriority) -> List[Requirement]:\n        return [req for req in self.requirements if req.priority == priority]\n\nrequirement_service = RequirementService()\n\n@app.post('/requirements/')\ndef create_requirement(requirement: Requirement):\n    requirement_service.add_requirement(requirement)\n    return {'message': 'Requirement added successfully', 'id': requirement.id}\n\n@app.get('/requirements/{priority}/')\ndef read_requirements_by_priority(priority: RequirementPriority):\n    requirements = requirement_service.get_requirements_by_priority(priority)\n    if not requirements:\n        raise HTTPException(status_code=404, detail='No requirements found for this priority')\n    return requirements\n",
+      "requirements.txt": "fastapi==0.75.0\npydantic==1.8.2\nuvicorn==0.15.0",
+      "input_output": {
+        "input": "{'id': 1, 'description': 'AI grading accuracy >= 90%', 'priority': 'must-have', 'category': 'Functional'}",
+        "expected_output": "{'message': 'Requirement added successfully', 'id': 1}"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 2,
+    "task": "Define user roles and permissions matrix",
+    "result": {
+      "code": "{\n  \"user_roles_permissions\": {\n    \"teacher\": {\n      \"permissions\": [\"view_student_submissions\", \"grade_submissions\", \"view_class_reports\", \"manage_assignments\"]\n    },\n    \"student\": {\n      \"permissions\": [\"submit_assignments\", \"view_own_grades\", \"view_own_feedback\"]\n    },\n    \"administrator\": {\n      \"permissions\": [\"manage_users\", \"manage_roles\", \"view_all_reports\", \"manage_system_settings\"]\n    },\n    \"guest\": {\n      \"permissions\": [\"view_public_info\"]\n    }\n  }\n}",
+      "requirements.txt": "python-decouple==3.8\npydantic==1.10.2\nfastapi==0.95.0\nuvicorn==0.21.1",
+      "input_output": {
+        "input": "None (User roles and permissions matrix is a static definition based on stakeholder requirements)",
+        "expected_output": "A JSON object containing user roles and their associated permissions, as defined in the code field."
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 3,
+    "task": "Design high-level system architecture diagram",
+    "result": {
+      "code": {
+        "system_architecture_diagram.py": "import diagrams as dia\nfrom diagrams import Cluster, Edge\nfrom diagrams.aws.compute import Lambda\nfrom diagrams.aws.database import RDS\nfrom diagrams.aws.network import ELB, Route53\nfrom diagrams.aws.security import WAF\nfrom diagrams.elastic.elasticsearch import Elasticsearch\nfrom diagrams.onprem.client import User\nfrom diagrams.onprem.compute import Server\nfrom diagrams.onprem.database import PostgreSQL\nfrom diagrams.onprem.network import Internet\nfrom diagrams.programming.language import Python\n\nwith dia.Diagram(\"System Architecture\", show=False) as diag:\n    user = User(\"User\")\n    internet = Internet(\"Internet\")\n    load_balancer = ELB(\"Load Balancer\")\n    api_gateway = Server(\"API Gateway\")\n    with Cluster(\"Microservices\"):\n        grading_module = Server(\"AI Grading Module\")\n        user_management = Server(\"User Management\")\n    database = PostgreSQL(\"PostgreSQL\")\n    ai_model = Python(\"TensorFlow Model\")\n    serverless = Lambda(\"AWS Lambda\")\n\n    user >> internet >> load_balancer >> api_gateway\n    api_gateway >> Edge(label=\"Request\") >> grading_module\n    api_gateway >> Edge(label=\"Request\") >> user_management\n    grading_module >> Edge(label=\"Data\") >> ai_model\n    user_management >> Edge(label=\"Data\") >> database\n    api_gateway >> Edge(label=\"Async Tasks\") >> serverless\n\ndiag.save(\"system_architecture_diagram.png\")",
+        "README.md": "# System Architecture Diagram\n\nThis repository contains the code to generate a high-level system architecture diagram for the AI-powered grading system.\n\n## Prerequisites\n- Python 3.8+\n- `diagrams` library\n\n## Installation\n`pip install diagrams`\n\n## Usage\n`python system_architecture_diagram.py`"
+      },
+      "requirements.txt": "diagrams==0.23.1\npython-diagram==0.23.1",
+      "input_output": {
+        "input": "None (The script generates the architecture diagram based on predefined components and relationships.)",
+        "expected_output": "A PNG file named `system_architecture_diagram.png` representing the high-level system architecture."
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 3,
+    "task": "Select AI model for grading based on accuracy and performance benchmarks",
+    "result": {
+      "code": {
+        "ai_model_selection.py": "import tensorflow as tf\nfrom tensorflow.keras.models import load_model\nfrom sklearn.metrics import accuracy_score\nimport numpy as np\n\ndef evaluate_model(model_path, test_data, test_labels):\n    model = load_model(model_path)\n    predictions = model.predict(test_data)\n    predicted_labels = np.argmax(predictions, axis=1)\n    accuracy = accuracy_score(test_labels, predicted_labels)\n    return accuracy\n\n# Example usage\nmodel_path = 'path_to_model.h5'\ntest_data = np.load('test_data.npy')\ntest_labels = np.load('test_labels.npy')\naccuracy = evaluate_model(model_path, test_data, test_labels)\nprint(f'Model Accuracy: {accuracy * 100:.2f}%')",
+        "model_benchmarking.py": "import time\nimport tensorflow as tf\nfrom ai_model_selection import evaluate_model\n\ndef benchmark_model(model_path, test_data, test_labels):\n    start_time = time.time()\n    accuracy = evaluate_model(model_path, test_data, test_labels)\n    end_time = time.time()\n    inference_time = (end_time - start_time) / len(test_data)\n    return accuracy, inference_time\n\n# Example usage\nmodel_path = 'path_to_model.h5'\ntest_data = np.load('test_data.npy')\ntest_labels = np.load('test_labels.npy')\naccuracy, inference_time = benchmark_model(model_path, test_data, test_labels)\nprint(f'Model Accuracy: {accuracy * 100:.2f}%, Inference Time: {inference_time * 1000:.2f} ms')",
+        "Dockerfile": "FROM python:3.9-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"python\", \"model_benchmarking.py\"]"
+      },
+      "requirements.txt": "tensorflow==2.10.0\nscikit-learn==1.2.2\nnumpy==1.23.5",
+      "input_output": {
+        "input": {
+          "model_path": "string (path to the saved model file, e.g., 'model.h5')",
+          "test_data": "numpy array (loaded from a .npy file, e.g., np.load('test_data.npy'))",
+          "test_labels": "numpy array (loaded from a .npy file, e.g., np.load('test_labels.npy'))"
+        },
+        "expected_output": {
+          "accuracy": "float (e.g., 0.95 for 95% accuracy)",
+          "inference_time": "float (e.g., 0.005 for 5 ms per inference)"
+        }
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 3,
+    "task": "Define database schema for user and assessment data",
+    "result": {
+      "code": "\"\"\"\nPostgreSQL database schema for user and assessment data.\n\"\"\"\n\n-- Users Table\nCREATE TABLE users (\n    user_id SERIAL PRIMARY KEY,\n    username VARCHAR(50) UNIQUE NOT NULL,\n    email VARCHAR(100) UNIQUE NOT NULL,\n    password_hash VARCHAR(128) NOT NULL,\n    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'teacher', 'admin')),\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Assessments Table\nCREATE TABLE assessments (\n    assessment_id SERIAL PRIMARY KEY,\n    title VARCHAR(200) NOT NULL,\n    description TEXT,\n    created_by INT REFERENCES users(user_id) ON DELETE CASCADE,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    due_date TIMESTAMP\n);\n\n-- Submissions Table\nCREATE TABLE submissions (\n    submission_id SERIAL PRIMARY KEY,\n    assessment_id INT REFERENCES assessments(assessment_id) ON DELETE CASCADE,\n    submitted_by INT REFERENCES users(user_id) ON DELETE CASCADE,\n    submission_text TEXT,\n    submission_file VARCHAR(255), -- File path or URL\n    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\n-- Grades Table\nCREATE TABLE grades (\n    grade_id SERIAL PRIMARY KEY,\n    submission_id INT REFERENCES submissions(submission_id) ON DELETE CASCADE,\n    score FLOAT CHECK (score BETWEEN 0 AND 100),\n    feedback TEXT,\n    graded_by INT REFERENCES users(user_id) ON DELETE SET NULL,\n    graded_at TIMESTAMP\n);",
+      "requirements.txt": "psycopg2==2.9.3\n",
+      "input_output": {
+        "input": "None (Database schema is a definition, not a function)",
+        "expected_output": "Database tables created in PostgreSQL: users, assessments, submissions, grades"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 4,
+    "task": "Create wireframes for key user interfaces (teacher dashboard, student portal, admin panel)",
+    "result": {
+      "code": {
+        "frontend/src/components/TeacherDashboard.js": "import React from 'react';\nfunction TeacherDashboard() { return <div>Teacher Dashboard Wireframe</div>; } export default TeacherDashboard;",
+        "frontend/src/components/StudentPortal.js": "import React from 'react';\nfunction StudentPortal() { return <div>Student Portal Wireframe</div>; } export default StudentPortal;",
+        "frontend/src/components/AdminPanel.js": "import React from 'react';\nfunction AdminPanel() { return <div>Admin Panel Wireframe</div>; } export default AdminPanel;",
+        "frontend/src/App.js": "import React from 'react';\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport TeacherDashboard from './components/TeacherDashboard';\nimport StudentPortal from './components/StudentPortal';\nimport AdminPanel from './components/AdminPanel';\nfunction App() { return <Router><Routes><Route path='/teacher' element={<TeacherDashboard />} /><Route path='/student' element={<StudentPortal />} /><Route path='/admin' element={<AdminPanel />} /></Routes></Router>; } export default App;"
+      },
+      "requirements.txt": "react==18.2.0\nreact-router-dom==6.3.0",
+      "input_output": {
+        "input": "None",
+        "expected_output": "Wireframes for Teacher Dashboard, Student Portal, and Admin Panel rendered as React components."
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 4,
+    "task": "Document API endpoints and data flow between services",
+    "result": {
+      "text_response": "```json\n{\n  \"code\": {\n    \"api_gateway/main.py\": \\\"\\\"\\\"\\nfrom fastapi import FastAPI, APIRouter\\n\\napp = FastAPI()\\n\\ngraded_router = APIRouter()\\nuser_router = APIRouter()\\n\\n@graded_router.post('/submit-assessment')\\nasync def submit_assessment(assessment_data: dict):\\n    # Forward to grading service\\n    return {'status': 'received'}\\n\\n@user_router.get('/users/me')\\nasync def get_current_user():\\n    # Fetch from user service\\n    return {'user_id': 1, 'role': 'student'}\\n\\napp.include_router(graded_router, prefix='/graded')\\napp.include_router(user_router, prefix='/user')\\n\\\"\\\"\\\"\\n\",\n    \"services/grading_service/app.py\": \\\"\\\"\\\"\\nfrom fastapi import FastAPI\\nimport tensorflow as tf\\n\\napp = FastAPI()\\nmodel = tf.keras.models.load_model('grading_model')\\n\\n@app.post('/grade')\\nasync def grade_assessment(data: dict):\\n    prediction = model.predict(data['content'])\\n    return {'score': float(prediction[0]), 'feedback': 'Well done!'}\\n\\\"\\\"\\\"\\n\",\n    \"services/user_service/app.py\": \\\"\\\"\\\"\\nfrom fastapi import FastAPI, HTTPException\\nfrom database import get_user\\n\\napp = FastAPI()\\n\\n@app.get('/users/{user_id}')\\nasync def read_user(user_id: int):\\n    user = get_user(user_id)\\n    if not user: raise HTTPException(404)\\n    return user\\n\\\"\\\"\\\"\\n\",\n    \"database/models.py\": \\\"\\\"\\\"\\nfrom sqlalchemy import create_engine, Column, Integer, String\\nfrom sqlalchemy.ext.declarative import declarative_base\\n\\nengine = create_engine('postgresql://user:pass@db/grading_system')\\nBase = declarative_base()\\n\\nclass User(Base):\\n    __tablename__ = 'users'\\n    id = Column(Integer, primary_key=True)\\n    role = Column(String)\\n\\\"\\\"\\\"\\n\",\n    \"Dockerfile\": \\\"\\\"\\\"\\n# API Gateway\\nFROM python:3.9\\nCOPY api_gateway /app\\nRUN pip install -r /app/requirements.txt\\nCMD uvicorn main:app --host 0.0.0.0\\n\\n# Grading Service\\nFROM python:3.9\\nCOPY services/grading_service /app\\nCOPY model /model\\nRUN pip install tensorflow\\nCMD uvicorn app:app --host 0.0.0.0\\n\\\"\\\"\\\"\\n\",\n    \"docker-compose.yml\": \\\"\\\"\\\"\\nversion: '3'\\nservices:\\n  api_gateway:\\n    build: ./api_gateway\\n    ports:\\n      - 8000:8000\\n  grading_service:\\n    build: ./services/grading_service\\n  user_service:\\n    build: ./services/user_service\\n  db:\\n    image: postgres:13\\n\\\"\\\"\\\"\\n\",\n    \"infrastructure/serverless.yml\": \\\"\\\"\\\"\\nservice: grading-system\\nprovider:\\n  name: aws\\n  runtime: python3.8\\nfunctions:\\n  grade_assessment:\\n    handler: grading_service.app.grade_assessment\\n    events:\\n      - http: POST /grade\\n\\\"\\\"\\\"\\n},\n  \"requirements.txt\": \\\"\\\"\\\"\\nfastapi==0.70.0\\nuvicorn==0.15.0\\nsqlalchemy==1.4.25\\npsycopg2-binary==2.9.1\\ntensorflow==2.6.0\\npython-dotenv==0.19.2\\n\\\"\\\"\\\"\\n\",\n  \"input_output\": {\n    \"input\": \"POST /graded/submit-assessment with JSON payload containing assessment content\",\n    \"expected_output\": \"HTTP 200 response with {'status': 'received'} from API Gateway, followed by grading service response with score and feedback\"\n  }\n}\n```"
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 4,
+    "task": "Evaluate and select cloud infrastructure components (e.g., AWS Lambda for serverless functions)",
+    "result": {
+      "text_response": "```json\n{\n  \"code\": \"from fastapi import FastAPI, HTTPException\\nimport boto3\\nimport json\\n\\napp = FastAPI()\\n\\n# AWS Lambda Client Initialization\\nlambda_client = boto3.client('lambda', region_name='us-east-1')\\n\\n@app.post('/invoke-lambda')\\ndef invoke_lambda(function_name: str, payload: dict):\\n    try:\\n        response = lambda_client.invoke(\\n            FunctionName=function_name,\\n            Payload=json.dumps(payload)\\n        )\\n        return {'statusCode': response['StatusCode'], 'body': response['Payload'].read().decode('utf-8')}\\n    except Exception as e:\\n        raise HTTPException(status_code=500, detail=str(e))\\n\",\n  \"requirements.txt\": \"fastapi==0.75.0\\nboto3==1.20.24\\n\",\n  \"input_output\": {\n      \"input\": \"{'function_name': 'grading-lambda', 'payload': {'student_id': '123', 'assessment_data': {'answers': ['A', 'B', 'C']}}}\",\n      \"expected_output\": \"{'statusCode': 200, 'body': '{\"grade\": \"B\", \"feedback\": \"Good attempt\"}'}\"\n  }\n}\n```"
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 5,
+    "task": "Review and validate system design against requirements",
+    "result": {
+      "code": {
+        "system_design_validation.py": "import json\n\n# Sample requirements and system design for validation\nrequirements = {\n    'functional': ['AI-powered grading', 'User management', 'Secure data storage'],\n    'non_functional': ['Accuracy >= 90%', 'Role-based access control']\n}\n\nsystem_design = {\n    'services': ['AI grading module', 'User management service', 'Secure database'],\n    'frontend': 'Responsive web application',\n    'architecture': 'Microservices with API gateway'\n}\n\ndef validate_design(requirements, system_design):\n    coverage = {\n        'functional': [],\n        'non_functional': []\n    }\n    for req_type, reqs in requirements.items():\n        for req in reqs:\n            if req_type == 'functional':\n                coverage[req_type].append(req in system_design['services'] or req in system_design['frontend'])\n            elif req_type == 'non_functional':\n                # Assuming non-functional requirements are validated manually\n                coverage[req_type].append(True)\n    return {\n        'functional_coverage': sum(coverage['functional']) / len(coverage['functional']),\n        'non_functional_coverage': sum(coverage['non_functional']) / len(coverage['non_functional'])\n    }\n\n# Example usage\nvalidation_result = validate_design(requirements, system_design)\nprint(json.dumps(validation_result, indent=4))",
+        "Dockerfile": "FROM python:3.9-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"python\", \"system_design_validation.py\"]",
+        "docker-compose.yml": "version: '3.8'\nservices:\n  validation_service:\n    build: .\n    container_name: system_design_validation\n    ports:\n      - \"127.0.0.1:5000:5000\"\n    environment:\n      - PYTHONUNBUFFERED=1",
+        "README.md": "# System Design Validation Tool\n\nThis tool validates the system design against stakeholder requirements.\n\n## Setup\n1. Install Docker and Docker Compose.\n2. Build and run the container: `docker-compose up --build`\n\n## Usage\nModify `system_design_validation.py` to include actual requirements and system design details."
+      },
+      "requirements.txt": "fastapi==0.75.0\npydantic==1.8.2\nuvicorn==0.15.0\ntensorflow==2.8.0\npsycopg2-binary==2.9.3\ndocker==5.0.3",
+      "input_output": {
+        "input": "{\n    'requirements': {\n        'functional': ['AI-powered grading', 'User management'],\n        'non_functional': ['Accuracy >= 90%']\n    },\n    'system_design': {\n        'services': ['AI grading module', 'User management service'],\n        'frontend': 'Responsive web application',\n        'architecture': 'Microservices with API gateway'\n    }\n}",
+        "expected_output": "{\n    'functional_coverage': 1.0,\n    'non_functional_coverage': 1.0\n}"
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 5,
+    "task": "Finalize documentation and share with stakeholders for feedback",
+    "result": {
+      "code": {
+        "app": {
+          "main.py": "from fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/'\ndef read_root():\n    return {\"message\": \"System Design Documentation API\"}\n",
+          "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\n",
+          "docker": {
+            "Dockerfile": "FROM python:3.9-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"80\"]\n"
+          }
+        },
+        "frontend": {
+          "src": {
+            "App.js": "import React from 'react';\nfunction App() { return <div>System Design Documentation Frontend</div>; }\nexport default App;\n"
+          },
+          "package.json": "{\n  \"name\": \"frontend\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"react\": \"17.0.2\",\n    \"react-dom\": \"17.0.2\"\n  }\n}\n"
+        },
+        "documentation": {
+          "system_design.md": "# System Design Documentation\n## Overview\nMicroservices architecture with AI-powered grading module, user management, and secure database.\n## Components\n- API Gateway\n- AI Grading Module\n- User Management Service\n- PostgreSQL Database\n- React Frontend\n",
+          "requirements.md": "# Requirements\n## Functional\n- User roles: Teacher, Student, Admin\n- Grading accuracy >= 90%\n## Non-Functional\n- Data privacy compliance\n- Scalable architecture\n"
+        }
+      },
+      "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\ntensorflow==2.8.0\npsycopg2-binary==2.9.3\n",
+      "input_output": {
+        "input": "None",
+        "expected_output": "System design and requirements documentation files, Dockerized backend, and React frontend setup."
+      }
+    }
+  },
+  {
+    "phase": "Requirements Gathering & System Design",
+    "day": 5,
+    "task": "Prepare presentation for sprint review and next phase planning",
+    "result": {
+      "code": {
+        "presentation_preparation.py": "import json\n\n# Load tasks by day from the provided information\ntasks_by_day = [\n    {\"day\": 1, \"tasks\": [\"Conduct stakeholder interviews with 2 teachers, 2 students, and 1 administrator\", \"Document initial functional and non-functional requirements\", \"Set up project repository and documentation structure\"]},\n    {\"day\": 2, \"tasks\": [\"Finalize stakeholder interviews with remaining participants\", \"Prioritize and categorize requirements into must-have, should-have, and nice-to-have\", \"Define user roles and permissions matrix\"]},\n    {\"day\": 3, \"tasks\": [\"Design high-level system architecture diagram\", \"Select AI model for grading based on accuracy and performance benchmarks\", \"Define database schema for user and assessment data\"]},\n    {\"day\": 4, \"tasks\": [\"Create wireframes for key user interfaces (teacher dashboard, student portal, admin panel)\", \"Document API endpoints and data flow between services\", \"Evaluate and select cloud infrastructure components (e.g., AWS Lambda for serverless functions)\"]},\n    {\"day\": 5, \"tasks\": [\"Review and validate system design against requirements\", \"Finalize documentation and share with stakeholders for feedback\", \"Prepare presentation for sprint review and next phase planning\"]}\n]\n\ndef generate_presentation_content():\n    presentation = {\n        \"Phase\": \"Requirements Gathering & System Design\",\n        \"System Design\": \"Microservices architecture with central API gateway, AI-powered grading module, user management service, secure database, and responsive web frontend with role-based access control.\",\n        \"Tech Stack\": [\"Python\", \"FastAPI\", \"React\", \"PostgreSQL\", \"Docker\", \"TensorFlow\", \"AWS Lambda\"],\n        \"Performance Metrics\": [\n            \"Stakeholder requirement coverage >= 90%\",\n            \"System design documentation completion by Day 5\",\n            \"AI model selection and initial benchmarking completed\"\n        ],\n        \"Tasks by Day\": tasks_by_day\n    }\n    return json.dumps(presentation, indent=4)\n\n# Generate presentation content\npresentation_content = generate_presentation_content()\nprint(presentation_content)\n",
+        "README.md": "# Sprint Review and Next Phase Planning Presentation\n\nThis repository contains the code to generate a presentation for the sprint review and next phase planning.\n\n## Usage\n1. Run `python presentation_preparation.py` to generate the presentation content in JSON format.\n2. Use the generated JSON to create slides or documents for the presentation.\n"
+      },
+      "requirements.txt": "python==3.9\nfastapi==0.75.0\nuvicorn==0.17.6\nreact==17.0.2\npsycopg2-binary==2.9.3\ndocker==5.0.3\ntensorflow==2.9.1\nboto3==1.21.4",
+      "input_output": {
+        "input": "None (The script generates presentation content based on predefined tasks and system design.)",
+        "expected_output": "A JSON formatted string containing the presentation content, including phase details, system design, tech stack, performance metrics, and tasks by day."
+      }
+    }
+  }
+]

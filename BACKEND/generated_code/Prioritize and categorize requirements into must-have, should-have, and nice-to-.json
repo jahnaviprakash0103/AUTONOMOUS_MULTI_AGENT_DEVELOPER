@@ -1,0 +1,8 @@
+{
+  "code": "from typing import List, Dict, Any\nfrom pydantic import BaseModel, Field\nfrom fastapi import FastAPI, HTTPException\nfrom enum import Enum\n\napp = FastAPI()\n\nclass RequirementPriority(str, Enum):\n    MUST_HAVE = 'must-have'\n    SHOULD_HAVE = 'should-have'\n    NICE_TO_HAVE = 'nice-to-have'\n\nclass Requirement(BaseModel):\n    id: int = Field(..., gt=0)\n    description: str\n    priority: RequirementPriority\n    category: str\n\nclass RequirementService:\n    def __init__(self):\n        self.requirements: List[Requirement] = []\n\n    def add_requirement(self, requirement: Requirement) -> None:\n        self.requirements.append(requirement)\n\n    def get_requirements_by_priority(self, priority: RequirementPriority) -> List[Requirement]:\n        return [req for req in self.requirements if req.priority == priority]\n\nrequirement_service = RequirementService()\n\n@app.post('/requirements/')\ndef create_requirement(requirement: Requirement):\n    requirement_service.add_requirement(requirement)\n    return {'message': 'Requirement added successfully', 'id': requirement.id}\n\n@app.get('/requirements/{priority}/')\ndef read_requirements_by_priority(priority: RequirementPriority):\n    requirements = requirement_service.get_requirements_by_priority(priority)\n    if not requirements:\n        raise HTTPException(status_code=404, detail='No requirements found for this priority')\n    return requirements\n",
+  "requirements.txt": "fastapi==0.75.0\npydantic==1.8.2\nuvicorn==0.15.0",
+  "input_output": {
+    "input": "{'id': 1, 'description': 'AI grading accuracy >= 90%', 'priority': 'must-have', 'category': 'Functional'}",
+    "expected_output": "{'message': 'Requirement added successfully', 'id': 1}"
+  }
+}

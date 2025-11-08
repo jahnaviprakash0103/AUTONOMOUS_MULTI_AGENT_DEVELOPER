@@ -1,0 +1,19 @@
+{
+  "code": {
+    "ai_model_selection.py": "import tensorflow as tf\nfrom tensorflow.keras.models import load_model\nfrom sklearn.metrics import accuracy_score\nimport numpy as np\n\ndef evaluate_model(model_path, test_data, test_labels):\n    model = load_model(model_path)\n    predictions = model.predict(test_data)\n    predicted_labels = np.argmax(predictions, axis=1)\n    accuracy = accuracy_score(test_labels, predicted_labels)\n    return accuracy\n\n# Example usage\nmodel_path = 'path_to_model.h5'\ntest_data = np.load('test_data.npy')\ntest_labels = np.load('test_labels.npy')\naccuracy = evaluate_model(model_path, test_data, test_labels)\nprint(f'Model Accuracy: {accuracy * 100:.2f}%')",
+    "model_benchmarking.py": "import time\nimport tensorflow as tf\nfrom ai_model_selection import evaluate_model\n\ndef benchmark_model(model_path, test_data, test_labels):\n    start_time = time.time()\n    accuracy = evaluate_model(model_path, test_data, test_labels)\n    end_time = time.time()\n    inference_time = (end_time - start_time) / len(test_data)\n    return accuracy, inference_time\n\n# Example usage\nmodel_path = 'path_to_model.h5'\ntest_data = np.load('test_data.npy')\ntest_labels = np.load('test_labels.npy')\naccuracy, inference_time = benchmark_model(model_path, test_data, test_labels)\nprint(f'Model Accuracy: {accuracy * 100:.2f}%, Inference Time: {inference_time * 1000:.2f} ms')",
+    "Dockerfile": "FROM python:3.9-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"python\", \"model_benchmarking.py\"]"
+  },
+  "requirements.txt": "tensorflow==2.10.0\nscikit-learn==1.2.2\nnumpy==1.23.5",
+  "input_output": {
+    "input": {
+      "model_path": "string (path to the saved model file, e.g., 'model.h5')",
+      "test_data": "numpy array (loaded from a .npy file, e.g., np.load('test_data.npy'))",
+      "test_labels": "numpy array (loaded from a .npy file, e.g., np.load('test_labels.npy'))"
+    },
+    "expected_output": {
+      "accuracy": "float (e.g., 0.95 for 95% accuracy)",
+      "inference_time": "float (e.g., 0.005 for 5 ms per inference)"
+    }
+  }
+}

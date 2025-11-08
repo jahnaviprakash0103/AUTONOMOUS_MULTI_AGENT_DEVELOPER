@@ -1,0 +1,26 @@
+{
+  "code": {
+    "app": {
+      "main.py": "from fastapi import FastAPI\napp = FastAPI()\n\n@app.get('/'\ndef read_root():\n    return {\"message\": \"System Design Documentation API\"}\n",
+      "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\n",
+      "docker": {
+        "Dockerfile": "FROM python:3.9-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"80\"]\n"
+      }
+    },
+    "frontend": {
+      "src": {
+        "App.js": "import React from 'react';\nfunction App() { return <div>System Design Documentation Frontend</div>; }\nexport default App;\n"
+      },
+      "package.json": "{\n  \"name\": \"frontend\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"react\": \"17.0.2\",\n    \"react-dom\": \"17.0.2\"\n  }\n}\n"
+    },
+    "documentation": {
+      "system_design.md": "# System Design Documentation\n## Overview\nMicroservices architecture with AI-powered grading module, user management, and secure database.\n## Components\n- API Gateway\n- AI Grading Module\n- User Management Service\n- PostgreSQL Database\n- React Frontend\n",
+      "requirements.md": "# Requirements\n## Functional\n- User roles: Teacher, Student, Admin\n- Grading accuracy >= 90%\n## Non-Functional\n- Data privacy compliance\n- Scalable architecture\n"
+    }
+  },
+  "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\ntensorflow==2.8.0\npsycopg2-binary==2.9.3\n",
+  "input_output": {
+    "input": "None",
+    "expected_output": "System design and requirements documentation files, Dockerized backend, and React frontend setup."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "code": {
+    "system_architecture_diagram.py": "import diagrams as dia\nfrom diagrams import Cluster, Edge\nfrom diagrams.aws.compute import Lambda\nfrom diagrams.aws.database import RDS\nfrom diagrams.aws.network import ELB, Route53\nfrom diagrams.aws.security import WAF\nfrom diagrams.elastic.elasticsearch import Elasticsearch\nfrom diagrams.onprem.client import User\nfrom diagrams.onprem.compute import Server\nfrom diagrams.onprem.database import PostgreSQL\nfrom diagrams.onprem.network import Internet\nfrom diagrams.programming.language import Python\n\nwith dia.Diagram(\"System Architecture\", show=False) as diag:\n    user = User(\"User\")\n    internet = Internet(\"Internet\")\n    load_balancer = ELB(\"Load Balancer\")\n    api_gateway = Server(\"API Gateway\")\n    with Cluster(\"Microservices\"):\n        grading_module = Server(\"AI Grading Module\")\n        user_management = Server(\"User Management\")\n    database = PostgreSQL(\"PostgreSQL\")\n    ai_model = Python(\"TensorFlow Model\")\n    serverless = Lambda(\"AWS Lambda\")\n\n    user >> internet >> load_balancer >> api_gateway\n    api_gateway >> Edge(label=\"Request\") >> grading_module\n    api_gateway >> Edge(label=\"Request\") >> user_management\n    grading_module >> Edge(label=\"Data\") >> ai_model\n    user_management >> Edge(label=\"Data\") >> database\n    api_gateway >> Edge(label=\"Async Tasks\") >> serverless\n\ndiag.save(\"system_architecture_diagram.png\")",
+    "README.md": "# System Architecture Diagram\n\nThis repository contains the code to generate a high-level system architecture diagram for the AI-powered grading system.\n\n## Prerequisites\n- Python 3.8+\n- `diagrams` library\n\n## Installation\n`pip install diagrams`\n\n## Usage\n`python system_architecture_diagram.py`"
+  },
+  "requirements.txt": "diagrams==0.23.1\npython-diagram==0.23.1",
+  "input_output": {
+    "input": "None (The script generates the architecture diagram based on predefined components and relationships.)",
+    "expected_output": "A PNG file named `system_architecture_diagram.png` representing the high-level system architecture."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "code": {
+    "frontend/src/components/TeacherDashboard.js": "import React from 'react';\nfunction TeacherDashboard() { return <div>Teacher Dashboard Wireframe</div>; } export default TeacherDashboard;",
+    "frontend/src/components/StudentPortal.js": "import React from 'react';\nfunction StudentPortal() { return <div>Student Portal Wireframe</div>; } export default StudentPortal;",
+    "frontend/src/components/AdminPanel.js": "import React from 'react';\nfunction AdminPanel() { return <div>Admin Panel Wireframe</div>; } export default AdminPanel;",
+    "frontend/src/App.js": "import React from 'react';\nimport { BrowserRouter as Router, Route, Routes } from 'react-router-dom';\nimport TeacherDashboard from './components/TeacherDashboard';\nimport StudentPortal from './components/StudentPortal';\nimport AdminPanel from './components/AdminPanel';\nfunction App() { return <Router><Routes><Route path='/teacher' element={<TeacherDashboard />} /><Route path='/student' element={<StudentPortal />} /><Route path='/admin' element={<AdminPanel />} /></Routes></Router>; } export default App;"
+  },
+  "requirements.txt": "react==18.2.0\nreact-router-dom==6.3.0",
+  "input_output": {
+    "input": "None",
+    "expected_output": "Wireframes for Teacher Dashboard, Student Portal, and Admin Panel rendered as React components."
+  }
+}

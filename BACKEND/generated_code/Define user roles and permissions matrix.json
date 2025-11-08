@@ -1,0 +1,8 @@
+{
+  "code": "{\n  \"user_roles_permissions\": {\n    \"teacher\": {\n      \"permissions\": [\"view_student_submissions\", \"grade_submissions\", \"view_class_reports\", \"manage_assignments\"]\n    },\n    \"student\": {\n      \"permissions\": [\"submit_assignments\", \"view_own_grades\", \"view_own_feedback\"]\n    },\n    \"administrator\": {\n      \"permissions\": [\"manage_users\", \"manage_roles\", \"view_all_reports\", \"manage_system_settings\"]\n    },\n    \"guest\": {\n      \"permissions\": [\"view_public_info\"]\n    }\n  }\n}",
+  "requirements.txt": "python-decouple==3.8\npydantic==1.10.2\nfastapi==0.95.0\nuvicorn==0.21.1",
+  "input_output": {
+    "input": "None (User roles and permissions matrix is a static definition based on stakeholder requirements)",
+    "expected_output": "A JSON object containing user roles and their associated permissions, as defined in the code field."
+  }
+}

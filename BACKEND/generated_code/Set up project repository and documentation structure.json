@@ -1,0 +1,15 @@
+{
+  "code": {
+    "README.md": "# Project Repository Structure\n## Overview\nThis repository contains the codebase and documentation for the AI-powered grading system.\n\n## Directory Structure\n```\n.github/\n  workflows/\n    ci.yml  # GitHub Actions CI pipeline\ndocs/\n  requirements.md  # Stakeholder requirements\n  system_design.md  # System architecture\n  api_docs.md      # API documentation\nfrontend/\n  src/            # React components\n  public/         # Static assets\nbackend/\n  api/            # FastAPI services\n  models/         # TensorFlow models\ndatabase/\n  schema.sql      # PostgreSQL schema\n  migrations/     # Database migrations\nDockerfile        # Docker configuration\n.env.example      # Environment variables template\n```\n\n## Getting Started\n1. Clone the repository\n2. Install dependencies: `pip install -r requirements.txt`\n3. Set up environment variables\n4. Run: `docker-compose up --build`\n",
+    "backend/api/__init__.py": "# FastAPI initialization\nfrom fastapi import FastAPI\napp = FastAPI()\n",
+    "backend/api/main.py": "# Example API endpoint\nfrom fastapi import APIRouter\nrouter = APIRouter()\n\n@router.get('/health')\ndef health_check():\n    return {\"status\": \"healthy\"}\n",
+    "docker-compose.yml": "version: '3.8'\nservices:\n  api:\n    build: ./backend\n    ports:\n      - 8000:8000\n  db:\n    image: postgres:13\n    environment:\n      POSTGRES_DB: grading_system\n  frontend:\n    build: ./frontend\n    ports:\n      - 3000:3000\n",
+    ".gitignore": ".env\n__pycache__/\nnode_modules/\nbuild/\ndist/\n",
+    "docs/system_design.md": "# System Design\n## Architecture\nMicroservices with API gateway\n\n## Components\n- AI Grading Module (TensorFlow)\n- User Management Service\n- Secure PostgreSQL Database\n- React Frontend with RBAC\n"
+  },
+  "requirements.txt": "fastapi==0.75.0\nuvicorn==0.17.6\npsycopg2-binary==2.9.3\ntensorflow==2.8.0\ndocker==5.0.3\n",
+  "input_output": {
+    "input": "None (Repository setup task)",
+    "expected_output": "Repository with defined structure and initial files created"
+  }
+}

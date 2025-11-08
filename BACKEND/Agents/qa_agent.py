@@ -60,57 +60,60 @@ class QAAgent:
 
     def generate_test_cases(self, phase_description, task_description, system_design, tech_stack, performance_metrics, architect_answers, code, requirements_txt, input_output):
         prompt = f"""
-You are a highly skilled software quality assurance (QA) engineer AI agent.
+    You are a highly skilled software quality assurance (QA) engineer AI agent.
 
-Given the following information about a system development task:
+    You are helping validate the system development tasks for an autonomous multi-agent project.
 
-Phase:
-"{phase_description}"
+    Each phase represents one week of work, and each day inside the phase corresponds to a specific development task.
 
-Task:
-"{task_description}"
+    Given the following information:
 
-System Design:
-"{system_design}"
+    Phase (Week):
+    "{phase_description}"
 
-Tech Stack:
-"{tech_stack}"
+    Day Task:
+    "{task_description}"
 
-Desired Performance Metrics:
-"{performance_metrics}"
+    System Design (for this project phase):
+    "{system_design}"
 
-Other Architect Information:
-"{architect_answers}"
+    Tech Stack:
+    "{tech_stack}"
 
-Generated Code:
-\"\"\"{code}\"\"\"
+    Performance Targets for this phase:
+    "{performance_metrics}"
 
-Dependencies (requirements.txt):
-\"\"\"{requirements_txt}\"\"\"
+    Additional Architect Notes:
+    "{architect_answers}"
 
-Input and Expected Output Specification:
-\"\"\"{input_output}\"\"\"
+    Generated Code for this Day:
+    \"\"\"{code}\"\"\"
 
-Your task is to generate a complete set of structured test cases to validate this system.
+    Dependencies (requirements.txt):
+    \"\"\"{requirements_txt}\"\"\"
 
-For each test case, produce a JSON object with these fields:
+    Input and Expected Output Specification:
+    \"\"\"{input_output}\"\"\"
 
-{{
-  "test_case_id": "<unique identifier>",
-  "description": "<brief description>",
-  "preconditions": "<setup or initial state if any>",
-  "steps": [
-    "<step 1 description>",
-    "<step 2 description>",
-    "... etc."
-  ],
-  "expected_result": "<expected outcome or system response>"
-}}
+    Generate a comprehensive but concise set of **JSON test cases** to validate the code and logic implemented for this day’s task.
 
-Ensure you cover functional scenarios, security testing, session and error handling, boundary/edge cases, and any performance considerations inferred from the inputs.
+    Each test case should include:
+    {{
+    "test_case_id": "<unique identifier>",
+    "description": "<brief description>",
+    "preconditions": "<setup or initial state if any>",
+    "steps": [
+        "<step 1 description>",
+        "<step 2 description>"
+    ],
+    "expected_result": "<expected outcome>"
+    }}
 
-Return ONLY a JSON array of test case objects without any additional commentary or text.
-"""
+    Cover functional, edge, error, and basic performance tests relevant to this day’s task.
+
+    Return ONLY a JSON array of test case objects — no explanations or text.
+    """
+
         raw_response = self._query_llm(prompt)
         return parse_llm_json_array(raw_response)
 
